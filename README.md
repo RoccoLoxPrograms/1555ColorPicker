@@ -4,4 +4,5 @@
 # Features
 * Change between light mode and dark mode.
 * Converts 1555 colors  to rgb.
-* Enter in you're own 1555 color or rgb color.
+* Enter in your own 1555 color or rgb color.
+* Switch between the xlibc color picker and the 1555 color picker.
