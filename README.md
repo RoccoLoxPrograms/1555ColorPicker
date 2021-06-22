@@ -3,3 +3,5 @@
 
 # Features
 * Change between light mode and dark mode.
+* Converts 1555 colors  to rgb.
+* Enter in you're own 1555 color or rgb color.
