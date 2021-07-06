@@ -1,0 +1,178 @@
+<!DOCTYPE html> <!-- May 2021 - RoccoLox Programs -->
+<html lang="en">
+    <head>
+        <title>1555 Color Picker</title>
+        <style type="text/css">
+            body {
+                background-color: rgb(235,235,235);
+            }
+            h1 {
+                margin: 5px 0px 0px 0px;
+                text-align: center;
+                font-size: 250%;
+                font-family: sans-serif;
+                font-weight: normal;
+                text-decoration: underline;
+            }
+            h3 {
+                color: #000000;
+                margin: 0px;
+                cursor: pointer;
+            }
+            p {
+                text-align: center;
+                font-weight: bold;
+                font-size: 200%;
+                padding: 5%;
+                font-family: sans-serif;
+                margin: 40px auto 25px auto;
+            }
+            footer {
+                bottom: 0px;
+                left: 0px;
+                position: fixed;
+                width: 100%;
+            }
+            a {
+                text-decoration: none;
+                color: #0179f9;
+                font-family: sans-serif;
+                font-size: 110%;
+                padding: 0px 5px 5px 5px;
+            }
+            /* slider styling */
+            .slidecontainer {
+                width: 100%;
+            }
+            .slider {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 100%;
+                height: 20px;
+                border-radius: 10px;
+                background: rgb(150,150,150);
+                outline: none;
+                opacity: 0.7;
+                -webkit-transition: .3s;
+                transition: opacity .3s;
+            }
+            .slider:hover {
+                opacity: 1;
+            }
+            .slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                border: 1px white solid;
+                background: #000000;
+                cursor: pointer;
+            }
+            .slider::-moz-range-thumb {
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                background: #000000;
+                cursor: pointer;
+            }
+        </style>
+        <script type="text/javascript">
+            function updateColors(red, green, blue, c1555) {
+                if (c1555.length == 1) c1555 = '0x000' + c1555;
+                else if (c1555.length == 2) c1555 = '0x00' + c1555;
+                else if (c1555.length == 3) c1555 = '0x0' + c1555;
+                else if (c1555.length == 4) c1555 = '0x' + c1555;
+                document.getElementById("text").innerHTML = `${c1555}<br>R: ${red} G: ${green} R: ${blue}`;
+                //document.getElementById("1555userValue").setAttribute("value", color1555);
+                document.getElementById("redUserValue").setAttribute("value", red);
+                document.getElementById("greenUserValue").setAttribute("value", green);
+                document.getElementById("blueUserValue").setAttribute("value", blue);
+                if (localStorage.getItem("1555ColorMode") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); color: #ffffff; border-color: #ffffff; border-width: thin; border-style: solid;`);
+                else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); color: #ffffff; border-color: #000000; border-width: thin; border-style: solid;`);
+            }
+            function changeMode() {
+                if (localStorage.getItem("1555ColorMode") == 'light') { // change mode
+                    localStorage.setItem("1555ColorMode","dark");
+                    darkMode();
+                } else {
+                    localStorage.setItem("1555ColorMode","light");
+                    lightMode();
+                }
+            }
+            function lightMode() {
+                document.getElementById("background").setAttribute("style","background-color: rgb(235,235,235);"); // chanhe background
+                document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(235,235,235);"); // change footer background
+                document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #000000;');document.getElementById("text").setAttribute("style","background-color: #000000; color: #ffffff; border-color: #000000; border-width: thin; border-style: solid;");
+                document.getElementById("title").setAttribute("style","color: #000000;"); // change text color
+                document.getElementById("mode").setAttribute("style","color: #000000; float: left;");
+                document.getElementById("copyright").setAttribute("style","color: #808080; float: right;");
+                document.getElementById("mode").innerHTML = 'Switch to Dark Mode'; // change option
+            }
+            function darkMode() {
+                document.getElementById("background").setAttribute("style","background-color: rgb(40,40,40);"); // chanhe background
+                document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(40,40,40);"); // change footer background
+                document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #ffffff;');
+                document.getElementById("text").setAttribute("style","background-color: #000000; color: #ffffff; border-color: #ffffff; border-width: thin; border-style: solid;");
+                document.getElementById("title").setAttribute("style","color: #ffffff;"); // change text color
+                document.getElementById("mode").setAttribute("style","color: #ffffff; float: left;");
+                document.getElementById("copyright").setAttribute("style","color: #b3b3b3; float: right;");
+                document.getElementById("mode").innerHTML = 'Switch to Light Mode'; // change option
+            }
+            function copyright() {
+                window.open('https://github.com/RoccoLoxPrograms/1555ColorPicker/blob/main/LICENSE','_blank');
+            }
+        </script>
+    </head>
+    <body id="background">
+        <h3 id="mode" onclick="changeMode()" style="float: left;">Switch to Dark Mode</h3> <!-- mode selector -->
+        <h3 id="copyright" style="color: #808080; float: right;" onclick="copyright()">&copy; 2021 RoccoLox Programs</h3>
+        <br>
+        <h1 id="title">1555 Color Picker</h1>
+        <p id="changeColorPicker" style="font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal;">
+            (<a href="https://roccoloxprograms.github.io/XlibcColorPicker/index.html" style="padding: 0px;">1555 Color Picker</a>)
+        </p>
+        <div style="width: 100%; align-items: center; display: block; margin: auto;">
+        <input type="text" value="0" class="userValue" id="1555userValue">
+        <input type="number" min="0" max="255" value="0" class="userValue" id="redUserValue">
+        <input type="number" min="0" max="255" value="0" class="userValue" id="greenUserValue">
+        <input type="number" min="0" max="255" value="0" class="userValue" id="blueUserValue">
+        </div>
+        <br>
+        <br>
+        <input type="range" min="0" max="32767" value="0" class="slider" id="1555slider">
+        <p id="text" style="background-color: #000000; color: #ffffff; border-color: #000000; border-width: thin; border-style: solid;">
+            0x0000<br>R: 0 G: 0 B: 0
+        </p>
+        <br> <!-- for smaller screen sizes -->
+        <footer> <!-- advertising! -->
+            <hr style="margin: 0px; margin-bottom: 5px;">
+            <a href="https://www.cemetech.net/forum/viewtopic.php?t=17446&start=0&postdays=0&postorder=asc&highlight=" target="_blank">Ask a question or suggest a feature...</a>
+            <a href="https://github.com/RoccoLoxPrograms/1555ColorPicker/releases" target="_blank" style="float: right;">Download the newest version...</a>
+        </footer>
+        <script type="text/javascript">
+            // update the slider value when dragged or the function is called
+            document.getElementById("1555slider").oninput = function() {
+                var c1555 = parseInt(this.value).toString(16).toUpperCase();
+                // thank you Zeroko
+                var red = Math.floor((this.value >> 10 & 31) * 255 / 31);
+                var green = Math.floor((this.value >> 10 & 32 | this.value >> 5 & 31) * 255 / 31);
+                var blue = Math.floor((this.value & 31) * 255 / 31);
+                updateColors(red, green, blue, c1555);
+            }
+            document.getElementById("redUserValue").oninput = function() {
+                var green = document.getElementById("greenUserValue").getAttribute("value");
+                var blue = document.getElementById("blueUserValue").getAttribute("value");
+                var c1555 = ((this.value >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3); // thank you MateoConLechuga (taken from the CE C toolchain)
+                document.getElementById("1555slider").setAttribute("value", c1555);
+                updateColors(this.value, green, blue, c1555.toString());
+            }
+            if (localStorage.getItem("1555ColorMode") == 'dark') { // switch to dark mode
+                darkMode();
+            } else { // default mode is light
+                // default positions and settings
+                localStorage.setItem("1555ColorMode","light");
+            }
+        </script>
+    </body>
+</html>
