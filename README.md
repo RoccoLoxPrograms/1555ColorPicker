@@ -1,8 +1,10 @@
-# 1555ColorPicker
-1555 Color Picker for C and Assembly programmers on the TI-84 Plus CE.
+# 1555 Color Picker
+1555 color picker for C and Assembly programmers on the TI-84 Plus CE.
 
 # Features
-* Change between light mode and dark mode.
-* Converts 1555 colors  to rgb.
+* Converts 1555 colors to rgb and rgb to 1555.
 * Enter in your own 1555 color or rgb color.
-* Switch between the xlibc color picker and the 1555 color picker.
+* Shows the 1555 value of each TI-OS color.
+* Shows the palette format of every color.
+* Switchs between the Xlibc Color Picker and the 1555 Color Picker.
+* Change between light mode and dark mode.
