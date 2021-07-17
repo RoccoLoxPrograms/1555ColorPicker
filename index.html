@@ -1,10 +1,30 @@
 <!DOCTYPE html> <!-- May 2021 - RoccoLox Programs -->
+<!--
+    Thank you epsilon5. This wouldn't exist without you.
+-->
 <html lang="en">
     <head>
-        <title>1555 Color Picker</title>
+        <title>1555 Color Picker [BETA]</title>
         <style type="text/css">
             body {
-                background-color: rgb(235,235,235);
+                background-color: rgb(243,243,243);
+            }
+            td.osColors {
+                width: 6.6%;
+                text-align: center;
+                color: #ffffff;
+                font-family: sans-serif;
+                font-weight: bold;
+                cursor: pointer;
+                height: 35px;
+                border-style: none;
+            }
+            table {
+                display: table;
+                margin: 10px auto;
+                border-width: thin;
+                border-style: solid;
+                border-color: #000000;
             }
             h1 {
                 margin: 5px 0px 0px 0px;
@@ -23,9 +43,9 @@
                 text-align: center;
                 font-weight: bold;
                 font-size: 200%;
-                padding: 5%;
+                padding: 8%;
                 font-family: sans-serif;
-                margin: 40px auto 25px auto;
+                margin: 20px auto 35px auto;
             }
             footer {
                 bottom: 0px;
@@ -39,6 +59,11 @@
                 font-family: sans-serif;
                 font-size: 110%;
                 padding: 0px 5px 5px 5px;
+            }
+            input.userValue {
+                padding: inherit;
+                font-size: 100%;
+                text-align: center;
             }
             /* slider styling */
             .slidecontainer {
@@ -78,20 +103,32 @@
             }
         </style>
         <script type="text/javascript">
-            function updateColors(red, green, blue, c1555) {
+            function updateValues(red, green, blue, color1555) {
+                document.getElementById("1555slider").value = color1555;
+                c1555 = parseInt(color1555).toString(16).toUpperCase();
+                document.getElementById("1555userValue").value = c1555;
                 if (c1555.length == 1) c1555 = '0x000' + c1555;
                 else if (c1555.length == 2) c1555 = '0x00' + c1555;
                 else if (c1555.length == 3) c1555 = '0x0' + c1555;
-                else if (c1555.length == 4) c1555 = '0x' + c1555;
-                document.getElementById("text").innerHTML = `${c1555}<br>R: ${red} G: ${green} R: ${blue}`;
-                //document.getElementById("1555userValue").setAttribute("value", color1555);
-                document.getElementById("redUserValue").setAttribute("value", red);
-                document.getElementById("greenUserValue").setAttribute("value", green);
-                document.getElementById("blueUserValue").setAttribute("value", blue);
-                if (localStorage.getItem("1555ColorMode") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); color: #ffffff; border-color: #ffffff; border-width: thin; border-style: solid;`);
-                else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); color: #ffffff; border-color: #000000; border-width: thin; border-style: solid;`);
+                else if (c1555.length >= 4) c1555 = '0x' + c1555;
+                var pal1 = c1555.substring(4,6);
+                var pal2 = c1555.substring(0,4);
+                document.getElementById("redUserValue").value = red;
+                document.getElementById("greenUserValue").value = green;
+                document.getElementById("blueUserValue").value = blue;
+                document.getElementById("1555hexValue").innerHTML = `1555: ${c1555}&ThickSpace; &ThickSpace; Palette: 0x${pal1}, ${pal2}`;
+                if (localStorage.getItem("1555ColorMode") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
+                else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
             }
+
             function changeMode() {
+                // revert back to black for everything
+                document.getElementById("1555slider").value = 0;
+                document.getElementById("1555userValue").value = 0;
+                document.getElementById("redUserValue").value = 0;
+                document.getElementById("greenUserValue").value = 0;
+                document.getElementById("blueUserValue").value = 0;
+                document.getElementById("1555hexValue").innerHTML = '1555: 0x0000&ThickSpace; &ThickSpace; Palette: 0x00, 0x00';
                 if (localStorage.getItem("1555ColorMode") == 'light') { // change mode
                     localStorage.setItem("1555ColorMode","dark");
                     darkMode();
@@ -100,73 +137,132 @@
                     lightMode();
                 }
             }
+
             function lightMode() {
-                document.getElementById("background").setAttribute("style","background-color: rgb(235,235,235);"); // chanhe background
-                document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(235,235,235);"); // change footer background
-                document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #000000;');document.getElementById("text").setAttribute("style","background-color: #000000; color: #ffffff; border-color: #000000; border-width: thin; border-style: solid;");
+                document.getElementById("body").setAttribute("style","background-color: rgb(243,243,243);"); // chanhe background
+                document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(243,243,243);"); // change footer background
+                document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #000000;');
+                document.getElementById("OSColors").setAttribute("style","border-color: #000000;"); // change border color
+                document.getElementById("TI").setAttribute("style","font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;"); // change text color
+                document.getElementById("1555hexValue").setAttribute("style","font-size: 175%; padding: 0px; margin: 5px; color: #000000;");
+                document.getElementById("text").setAttribute("style","background-color: #000000; border-color: #000000; border-width: thin; border-style: solid;");
+                document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #000000;");
                 document.getElementById("title").setAttribute("style","color: #000000;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #000000; float: left;");
                 document.getElementById("copyright").setAttribute("style","color: #808080; float: right;");
                 document.getElementById("mode").innerHTML = 'Switch to Dark Mode'; // change option
             }
+
             function darkMode() {
-                document.getElementById("background").setAttribute("style","background-color: rgb(40,40,40);"); // chanhe background
+                document.getElementById("body").setAttribute("style","background-color: rgb(40,40,40);"); // chanhe background
                 document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(40,40,40);"); // change footer background
                 document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #ffffff;');
-                document.getElementById("text").setAttribute("style","background-color: #000000; color: #ffffff; border-color: #ffffff; border-width: thin; border-style: solid;");
+                document.getElementById("OSColors").setAttribute("style","border-color: #ffffff;"); // change border color
+                document.getElementById("TI").setAttribute("style","font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px; color: #ffffff;"); // change text color
+                document.getElementById("1555hexValue").setAttribute("style","font-size: 175%; padding: 0px; margin: 5px; color: #ffffff;");
+                document.getElementById("text").setAttribute("style","background-color: #000000; border-color: #ffffff; border-width: thin; border-style: solid;");
+                document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #ffffff;");
                 document.getElementById("title").setAttribute("style","color: #ffffff;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #ffffff; float: left;");
                 document.getElementById("copyright").setAttribute("style","color: #b3b3b3; float: right;");
                 document.getElementById("mode").innerHTML = 'Switch to Light Mode'; // change option
             }
-            function copyright() {
-                window.open('https://github.com/RoccoLoxPrograms/1555ColorPicker/blob/main/LICENSE','_blank');
+
+            function info() { // short description
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: BETA 1.0\nDate: 2021-07-16\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
-    <body id="background">
+    <body id="body">
         <h3 id="mode" onclick="changeMode()" style="float: left;">Switch to Dark Mode</h3> <!-- mode selector -->
-        <h3 id="copyright" style="color: #808080; float: right;" onclick="copyright()">&copy; 2021 RoccoLox Programs</h3>
+        <h3 id="copyright" style="color: #808080; float: right;" onclick="info()">&copy; 2021 RoccoLox Programs</h3>
         <br>
         <h1 id="title">1555 Color Picker</h1>
         <p id="changeColorPicker" style="font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal;">
-            (<a href="https://roccoloxprograms.github.io/XlibcColorPicker/index.html" style="padding: 0px;">1555 Color Picker</a>)
+            (<a href="https://roccoloxprograms.github.io/XlibcColorPicker/index.html" style="padding: 0px;">Xlibc Color Picker</a>)
         </p>
-        <div style="width: 100%; align-items: center; display: block; margin: auto;">
-        <input type="text" value="0" class="userValue" id="1555userValue">
-        <input type="number" min="0" max="255" value="0" class="userValue" id="redUserValue">
-        <input type="number" min="0" max="255" value="0" class="userValue" id="greenUserValue">
-        <input type="number" min="0" max="255" value="0" class="userValue" id="blueUserValue">
-        </div>
-        <br>
-        <br>
         <input type="range" min="0" max="32767" value="0" class="slider" id="1555slider">
-        <p id="text" style="background-color: #000000; color: #ffffff; border-color: #000000; border-width: thin; border-style: solid;">
-            0x0000<br>R: 0 G: 0 B: 0
+        <br>
+        <br>
+        <p style="padding: 0px; margin: unset; font-size: 150%;" id="userInput">
+            1555 (hex): <input type="text" value="0" class="userValue" id="1555userValue">&ThickSpace;
+            &ThickSpace; RED: <input type="number" min="0" max="255" value="0" class="userValue" id="redUserValue">
+            GREEN: <input type="number" min="0" max="255" value="0" class="userValue" id="greenUserValue">
+            BLUE: <input type="number" min="0" max="255" value="0" class="userValue" id="blueUserValue">
         </p>
+        <br>
+        <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000&ThickSpace; &ThickSpace; Palette: 0x00, 0x00</p>
+        <p id="text" style="background-color: #000000; border-color: #000000; border-width: thin; border-style: solid;"></p>
+        <table id="OSColors" cellspacing=0>
+            <tr>
+                <td class="osColors" style="background-color: rgb(0,0,255);" onclick="updateValues(0,0,255,31)">BLUE</td>
+                <td class="osColors" style="background-color: rgb(255,0,0);" onclick="updateValues(255,0,0,31744)">RED</td>
+                <td class="osColors" style="background-color: rgb(0,0,0);" onclick="updateValues(0,0,0,0)">BLACK</td>
+                <td class="osColors" style="background-color: rgb(255,0,255);" onclick="updateValues(255,0,255,31775)">MAGENTA</td>
+                <td class="osColors" style="background-color: rgb(0,158,0);" onclick="updateValues(0,158,0,608)">GREEN</td>
+                <td class="osColors" style="background-color: rgb(255,132,42);" onclick="updateValues(255,132,42,32293)">ORANGE</td>
+                <td class="osColors" style="background-color: rgb(182,32,0);" onclick="updateValues(182,32,0,22656)">BROWN</td>
+                <td class="osColors" style="background-color: rgb(0,0,134);" onclick="updateValues(0,0,134,16)">NAVY</td>
+                <td class="osColors" style="background-color: rgb(0,146,255);" onclick="updateValues(0,146,255,607)">LTBLUE</td>
+                <td class="osColors" style="background-color: rgb(255,255,0); color: #000000;" onclick="updateValues(255,255,0,32736)">YELLOW</td>
+                <td class="osColors" style="background-color: rgb(255,255,255); color: #000000;" onclick="updateValues(255,255,255,32767)">WHITE</td>
+                <td class="osColors" style="background-color: rgb(231,227,231); color: #000000;" onclick="updateValues(231,227,231,29596)">LTGRAY</td>
+                <td class="osColors" style="background-color: rgb(199,195,199); color: #000000;" onclick="updateValues(199,195,199,25368)">MEDGRAY</td>
+                <td class="osColors" style="background-color: rgb(142,138,142); color: #000000;" onclick="updateValues(142,138,142,17969)">GRAY</td>
+                <td class="osColors" style="background-color: rgb(81,85,81);" onclick="updateValues(81,85,81,10570)">DARKGRAY</td>
+            </tr>
+        </table>
+        <p  id ="TI" style="font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;">TI-OS Colors</p>
         <br> <!-- for smaller screen sizes -->
         <footer> <!-- advertising! -->
             <hr style="margin: 0px; margin-bottom: 5px;">
-            <a href="https://www.cemetech.net/forum/viewtopic.php?t=17446&start=0&postdays=0&postorder=asc&highlight=" target="_blank">Ask a question or suggest a feature...</a>
-            <a href="https://github.com/RoccoLoxPrograms/1555ColorPicker/releases" target="_blank" style="float: right;">Download the newest version...</a>
+            <a href="https://www.cemetech.net/forum/viewtopic.php?t=17446&start=0&postdays=0&postorder=asc&highlight=" target="_blank">Ask a question or suggest a feature</a>
+            <a href="https://github.com/RoccoLoxPrograms/1555ColorPicker/releases" target="_blank" style="float: right;">Download the newest version</a>
         </footer>
         <script type="text/javascript">
-            // update the slider value when dragged or the function is called
+            // get slider value
             document.getElementById("1555slider").oninput = function() {
-                var c1555 = parseInt(this.value).toString(16).toUpperCase();
                 // thank you Zeroko
                 var red = Math.floor((this.value >> 10 & 31) * 255 / 31);
                 var green = Math.floor((this.value >> 10 & 32 | this.value >> 5 & 31) * 255 / 31);
                 var blue = Math.floor((this.value & 31) * 255 / 31);
-                updateColors(red, green, blue, c1555);
+                updateValues(red, green, blue, this.value);
             }
+
+            // get 1555 input value
+            document.getElementById("1555userValue").oninput = function() {
+                var c1555 = parseInt(this.value, 16).toString(10);
+                var red = Math.floor((c1555 >> 10 & 31) * 255 / 31);
+                var green = Math.floor((c1555 >> 10 & 32 | c1555 >> 5 & 31) * 255 / 31);
+                var blue = Math.floor((c1555 & 31) * 255 / 31);
+                updateValues(red, green, blue, c1555);
+            }
+
+            // get red input value
             document.getElementById("redUserValue").oninput = function() {
-                var green = document.getElementById("greenUserValue").getAttribute("value");
-                var blue = document.getElementById("blueUserValue").getAttribute("value");
+                var green = document.getElementById("greenUserValue").value;
+                var blue = document.getElementById("blueUserValue").value;
                 var c1555 = ((this.value >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3); // thank you MateoConLechuga (taken from the CE C toolchain)
-                document.getElementById("1555slider").setAttribute("value", c1555);
-                updateColors(this.value, green, blue, c1555.toString());
+                updateValues(this.value, green, blue, c1555);
             }
+
+            // get green input value
+            document.getElementById("greenUserValue").oninput = function() {
+                var red = document.getElementById("redUserValue").value;
+                var blue = document.getElementById("blueUserValue").value;
+                var c1555 = ((red >> 3) << 10) | ((this.value >> 3) << 5) | (blue >> 3);
+                updateValues(red, this.value, blue, c1555);
+            }
+
+            // get bluw input value
+            document.getElementById("blueUserValue").oninput = function() {
+                var red = document.getElementById("redUserValue").value;
+                var green = document.getElementById("greenUserValue").value;
+                var c1555 = ((red >> 3) << 10) | ((green >> 3) << 5) | (this.value >> 3);
+                updateValues(red, green, this.value, c1555);
+            }
+
+            // set mode
             if (localStorage.getItem("1555ColorMode") == 'dark') { // switch to dark mode
                 darkMode();
             } else { // default mode is light
