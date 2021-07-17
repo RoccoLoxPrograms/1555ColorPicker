@@ -116,7 +116,7 @@
                 document.getElementById("redUserValue").value = red;
                 document.getElementById("greenUserValue").value = green;
                 document.getElementById("blueUserValue").value = blue;
-                document.getElementById("1555hexValue").innerHTML = `1555: ${c1555}&ThickSpace; &ThickSpace; Palette: 0x${pal1}, ${pal2}`;
+                document.getElementById("1555hexValue").innerHTML = `1555: ${c1555}&nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
                 if (localStorage.getItem("1555ColorMode") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
             }
@@ -169,7 +169,7 @@
             }
 
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: BETA 1.0\nDate: 2021-07-16\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 0.9.1 BETA\nDate: 2021-07-16\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
