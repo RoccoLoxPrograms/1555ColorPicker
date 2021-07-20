@@ -1,10 +1,12 @@
 <!DOCTYPE html> <!-- May 2021 - RoccoLox Programs -->
 <!--
     Thank you epsilon5. This wouldn't exist without you.
+    Thank you Zeroko, for your rgb1555 to rgb888 conversion code.
+    Thank you to anyone else who suggested features and has used this program.
 -->
 <html lang="en">
     <head>
-        <title>1555 Color Picker [BETA]</title>
+        <title>1555 Color Picker</title>
         <style type="text/css">
             body {
                 background-color: rgb(243,243,243);
@@ -60,10 +62,16 @@
                 font-size: 110%;
                 padding: 0px 5px 5px 5px;
             }
-            input.userValue {
+            input.numberValue {
                 padding: inherit;
                 font-size: 100%;
                 text-align: center;
+            }
+            input.textValue {
+                padding: inherit;
+                font-size: 100%;
+                text-align: center;
+                width: 150px;
             }
             /* slider styling */
             .slidecontainer {
@@ -105,20 +113,41 @@
         <script type="text/javascript">
             function updateValues(red, green, blue, color1555) {
                 document.getElementById("1555slider").value = color1555;
-                c1555 = parseInt(color1555).toString(16).toUpperCase();
+                c1555 = parseInt(color1555).toString(16).toUpperCase(); // get the 1555 hex value
                 document.getElementById("1555userValue").value = c1555;
+                // make sure the length is 6
                 if (c1555.length == 1) c1555 = '0x000' + c1555;
                 else if (c1555.length == 2) c1555 = '0x00' + c1555;
                 else if (c1555.length == 3) c1555 = '0x0' + c1555;
-                else if (c1555.length >= 4) c1555 = '0x' + c1555;
-                var pal1 = c1555.substring(4,6);
-                var pal2 = c1555.substring(0,4);
+                else if (c1555.length == 4) c1555 = '0x' + c1555;
+                var pal1 = c1555.substring(4,6); // first palette color
+                var pal2 = c1555.substring(0,4); // second palette color
+                // find the hex value for the rgb color
+                var redHex = parseInt(red).toString(16).toUpperCase();
+                var greenHex = parseInt(green).toString(16).toUpperCase();
+                var blueHex = parseInt(blue).toString(16).toUpperCase();
+                // update values and redisplay them
                 document.getElementById("redUserValue").value = red;
                 document.getElementById("greenUserValue").value = green;
                 document.getElementById("blueUserValue").value = blue;
-                document.getElementById("1555hexValue").innerHTML = `1555: ${c1555}&nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                document.getElementById("1555hexValue").innerHTML = `1555: ${c1555}&nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                // thank you Zeroko
+                red = Math.floor((color1555 >> 10 & 31) * 255 / 31);
+                green = Math.floor((color1555 >> 10 & 32 | color1555 >> 5 & 31) * 255 / 31);
+                blue = Math.floor((color1555 & 31) * 255 / 31);
+                // update the color box
                 if (localStorage.getItem("1555ColorMode") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
+                // update the hex value box
+                if (redHex.length == 1) redHex = '0' + redHex;
+                if (greenHex.length == 1) greenHex = '0' + greenHex;
+                if (blueHex.length == 1) blueHex = '0' + blueHex;
+                document.getElementById("hexUserValue").value = redHex + greenHex + blueHex;
+            }
+
+            function RGBto1555(red, green, blue) { // convert the rgb to 1555
+                var c1555 = ((red >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3); // thank you MateoConLechuga (taken from the CE C toolchain)
+                return c1555;
             }
 
             function changeMode() {
@@ -128,7 +157,8 @@
                 document.getElementById("redUserValue").value = 0;
                 document.getElementById("greenUserValue").value = 0;
                 document.getElementById("blueUserValue").value = 0;
-                document.getElementById("1555hexValue").innerHTML = '1555: 0x0000&ThickSpace; &ThickSpace; Palette: 0x00, 0x00';
+                document.getElementById("hexUserValue").value = '000000';
+                document.getElementById("1555hexValue").innerHTML = '1555: 0x0000&nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00';
                 if (localStorage.getItem("1555ColorMode") == 'light') { // change mode
                     localStorage.setItem("1555ColorMode","dark");
                     darkMode();
@@ -169,7 +199,7 @@
             }
 
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 0.9.1 BETA\nDate: 2021-07-16\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.0\nDate: 2021-07-19\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -179,25 +209,26 @@
         <br>
         <h1 id="title">1555 Color Picker</h1>
         <p id="changeColorPicker" style="font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal;">
-            (<a href="https://roccoloxprograms.github.io/XlibcColorPicker/index.html" style="padding: 0px;">Xlibc Color Picker</a>)
+            (<a href="https://roccoloxprograms.github.io/XlibcColorPicker" style="padding: 0px;">Xlibc Color Picker</a>)
         </p>
         <input type="range" min="0" max="32767" value="0" class="slider" id="1555slider">
         <br>
         <br>
         <p style="padding: 0px; margin: unset; font-size: 150%;" id="userInput">
-            1555 (hex): <input type="text" value="0" class="userValue" id="1555userValue">&nbsp;
-            &nbsp; RED: <input type="number" min="0" max="255" value="0" class="userValue" id="redUserValue">
-            GREEN: <input type="number" min="0" max="255" value="0" class="userValue" id="greenUserValue">
-            BLUE: <input type="number" min="0" max="255" value="0" class="userValue" id="blueUserValue">
+            1555 (hex): <input type="text" value="0" class="textValue" id="1555userValue">&nbsp;
+            &nbsp; RED: <input type="number" min="0" max="255" value="0" class="numberValue" id="redUserValue">
+            GREEN: <input type="number" min="0" max="255" value="0" class="numberValue" id="greenUserValue">
+            BLUE: <input type="number" min="0" max="255" value="0" class="numberValue" id="blueUserValue">&nbsp;
+            &nbsp; HEX: <input type="text" value="000000" class="textValue" id="hexUserValue">
         </p>
         <br>
-        <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000&nbsp; &nbsp; Palette: 0x00, 0x00</p>
+        <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000&nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00</p>
         <p id="text" style="background-color: #000000; border-color: #000000; border-width: thin; border-style: solid;"></p>
-        <table id="OSColors" cellspacing=0>
+        <table id="OSColors" cellspacing=0> <!--- TI-OS color table -->
             <tr>
                 <td class="osColors" style="background-color: rgb(0,0,255);" onclick="updateValues(0,0,255,31)">BLUE</td>
                 <td class="osColors" style="background-color: rgb(255,0,0);" onclick="updateValues(255,0,0,31744)">RED</td>
-                <td class="osColors" style="background-color: rgb(0,0,0);" onclick="updateValues(0,0,0,0)">BLACK</td>
+                <td class="osColors" style="background-color: rgb(0, 0, 0);" onclick="updateValues(0,0,0,0)">BLACK</td>
                 <td class="osColors" style="background-color: rgb(255,0,255);" onclick="updateValues(255,0,255,31775)">MAGENTA</td>
                 <td class="osColors" style="background-color: rgb(0,158,0);" onclick="updateValues(0,158,0,608)">GREEN</td>
                 <td class="osColors" style="background-color: rgb(255,132,42);" onclick="updateValues(255,132,42,32293)">ORANGE</td>
@@ -222,7 +253,7 @@
         <script type="text/javascript">
             // get slider value
             document.getElementById("1555slider").oninput = function() {
-                // thank you Zeroko
+                // convert 1555 to rgb
                 var red = Math.floor((this.value >> 10 & 31) * 255 / 31);
                 var green = Math.floor((this.value >> 10 & 32 | this.value >> 5 & 31) * 255 / 31);
                 var blue = Math.floor((this.value & 31) * 255 / 31);
@@ -231,10 +262,34 @@
 
             // get 1555 input value
             document.getElementById("1555userValue").oninput = function() {
-                var c1555 = parseInt(this.value, 16).toString(10);
+                var hex = this.value;
+                // in case the string is too long or too short
+                if (hex.length == 5) hex = hex.substring(1,5);
+                if (hex.length == 0) hex = '0';
+                var c1555 = parseInt(hex, 16).toString(10);
+                // convert 1555 to rgb
                 var red = Math.floor((c1555 >> 10 & 31) * 255 / 31);
                 var green = Math.floor((c1555 >> 10 & 32 | c1555 >> 5 & 31) * 255 / 31);
                 var blue = Math.floor((c1555 & 31) * 255 / 31);
+                updateValues(red, green, blue, c1555);
+            }
+
+            // get hex color input value
+            document.getElementById("hexUserValue").oninput = function() {
+                var hex = this.value;
+                // in case the string is too long or too short
+                if (hex.length == 7) hex = hex.substring(1,7);
+                if (hex.length == 0) hex = '000000';
+                // make sure the length is 6
+                if (hex.length == 1) hex = '00000' + hex;
+                else if (hex.length == 2) hex = '0000' + hex;
+                else if (hex.length == 3) hex = '000' + hex;
+                else if (hex.length == 4) hex = '00' + hex;
+                else if (hex.length == 5) hex = '0' + hex;
+                var red = parseInt(hex.substring(0,2), 16).toString(10);
+                var green = parseInt(hex.substring(2,4), 16).toString(10);
+                var blue = parseInt(hex.substring(4,hex.length), 16).toString(10);
+                var c1555 = RGBto1555(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
@@ -242,7 +297,7 @@
             document.getElementById("redUserValue").oninput = function() {
                 var green = document.getElementById("greenUserValue").value;
                 var blue = document.getElementById("blueUserValue").value;
-                var c1555 = ((this.value >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3); // thank you MateoConLechuga (taken from the CE C toolchain)
+                var c1555 = RGBto1555(this.value, green, blue); 
                 updateValues(this.value, green, blue, c1555);
             }
 
@@ -250,7 +305,7 @@
             document.getElementById("greenUserValue").oninput = function() {
                 var red = document.getElementById("redUserValue").value;
                 var blue = document.getElementById("blueUserValue").value;
-                var c1555 = ((red >> 3) << 10) | ((this.value >> 3) << 5) | (blue >> 3);
+                var c1555 = RGBto1555(red, this.value, blue);
                 updateValues(red, this.value, blue, c1555);
             }
 
@@ -258,7 +313,7 @@
             document.getElementById("blueUserValue").oninput = function() {
                 var red = document.getElementById("redUserValue").value;
                 var green = document.getElementById("greenUserValue").value;
-                var c1555 = ((red >> 3) << 10) | ((green >> 3) << 5) | (this.value >> 3);
+                var c1555 = RGBto1555(red, green, this.value);
                 updateValues(red, green, this.value, c1555);
             }
 
