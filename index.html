@@ -11,22 +11,25 @@
             body {
                 background-color: rgb(243,243,243);
             }
-            td.osColors {
-                width: 6.6%;
-                text-align: center;
+            div.table {
+                display: flex;
+                margin: 10px auto;
+                border-width: thin;
+                border-style: solid;
+                border-color: #000000;
+                justify-content: center;
+            }
+            div.osColors {
+                display: flex;
+                padding: 1px;
+                width: 100%;
+                justify-content: center;
+                align-items: center;
                 color: #ffffff;
                 font-family: sans-serif;
                 font-weight: bold;
                 cursor: pointer;
                 height: 35px;
-                border-style: none;
-            }
-            table {
-                display: table;
-                margin: 10px auto;
-                border-width: thin;
-                border-style: solid;
-                border-color: #000000;
             }
             h1 {
                 margin: 5px 0px 0px 0px;
@@ -62,6 +65,13 @@
                 font-size: 110%;
                 padding: 0px 5px 5px 5px;
             }
+            input {
+                border-radius: 6px;
+                border-width: 1px;
+            }
+            input:focus {
+                outline-width: 0px;
+            }
             input.numberValue {
                 padding: inherit;
                 font-size: 100%;
@@ -74,9 +84,6 @@
                 width: 150px;
             }
             /* slider styling */
-            .slidecontainer {
-                width: 100%;
-            }
             .slider {
                 -webkit-appearance: none;
                 appearance: none;
@@ -151,14 +158,6 @@
             }
 
             function changeMode() {
-                // revert back to black for everything
-                document.getElementById("1555slider").value = 0;
-                document.getElementById("1555userValue").value = 0;
-                document.getElementById("redUserValue").value = 0;
-                document.getElementById("greenUserValue").value = 0;
-                document.getElementById("blueUserValue").value = 0;
-                document.getElementById("hexUserValue").value = '000000';
-                document.getElementById("1555hexValue").innerHTML = '1555: 0x0000&nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00';
                 if (localStorage.getItem("1555ColorMode") == 'light') { // change mode
                     localStorage.setItem("1555ColorMode","dark");
                     darkMode();
@@ -175,7 +174,7 @@
                 document.getElementById("OSColors").setAttribute("style","border-color: #000000;"); // change border color
                 document.getElementById("TI").setAttribute("style","font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;"); // change text color
                 document.getElementById("1555hexValue").setAttribute("style","font-size: 175%; padding: 0px; margin: 5px; color: #000000;");
-                document.getElementById("text").setAttribute("style","background-color: #000000; border-color: #000000; border-width: thin; border-style: solid;");
+                document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
                 document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #000000;");
                 document.getElementById("title").setAttribute("style","color: #000000;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #000000; float: left;");
@@ -190,7 +189,7 @@
                 document.getElementById("OSColors").setAttribute("style","border-color: #ffffff;"); // change border color
                 document.getElementById("TI").setAttribute("style","font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px; color: #ffffff;"); // change text color
                 document.getElementById("1555hexValue").setAttribute("style","font-size: 175%; padding: 0px; margin: 5px; color: #ffffff;");
-                document.getElementById("text").setAttribute("style","background-color: #000000; border-color: #ffffff; border-width: thin; border-style: solid;");
+                document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #ffffff;");
                 document.getElementById("title").setAttribute("style","color: #ffffff;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #ffffff; float: left;");
@@ -198,8 +197,25 @@
                 document.getElementById("mode").innerHTML = 'Switch to Light Mode'; // change option
             }
 
+            function hover(n, r, g, b) {
+                onMouseOut(); // remove the hover box
+                // draw new hover box
+                if (n < 10 || n == 15 ) document.getElementsByTagName('div')[n].setAttribute("style",`background-color: rgb(${r}, ${g}, ${b}); border: solid white 1px; padding: 0px; color: #ffffff;`);
+                else document.getElementsByTagName('div')[n].setAttribute("style",`background-color: rgb(${r}, ${g}, ${b}); border: solid black 1px; padding: 0px; color: #000000;`);
+                // update values
+                oldn = n;
+                oldr = r;
+                oldg = g;
+                oldb = b;
+            }
+
+            function onMouseOut() { // when not over a table, remove the hover box
+                if (oldn < 10 || oldn == 15) document.getElementsByTagName('div')[oldn].setAttribute("style",`background-color: rgb(${oldr}, ${oldg}, ${oldb});`);
+                else document.getElementsByTagName('div')[oldn].setAttribute("style",`background-color: rgb(${oldr}, ${oldg}, ${oldb}); color: #000000;`);
+            }
+
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.0\nDate: 2021-07-19\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.0\nDate: 2021-07-21\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -224,25 +240,23 @@
         <br>
         <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000&nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00</p>
         <p id="text" style="background-color: #000000; border-color: #000000; border-width: thin; border-style: solid;"></p>
-        <table id="OSColors" cellspacing=0> <!--- TI-OS color table -->
-            <tr>
-                <td class="osColors" style="background-color: rgb(0,0,255);" onclick="updateValues(0,0,255,31)">BLUE</td>
-                <td class="osColors" style="background-color: rgb(255,0,0);" onclick="updateValues(255,0,0,31744)">RED</td>
-                <td class="osColors" style="background-color: rgb(0, 0, 0);" onclick="updateValues(0,0,0,0)">BLACK</td>
-                <td class="osColors" style="background-color: rgb(255,0,255);" onclick="updateValues(255,0,255,31775)">MAGENTA</td>
-                <td class="osColors" style="background-color: rgb(0,158,0);" onclick="updateValues(0,158,0,608)">GREEN</td>
-                <td class="osColors" style="background-color: rgb(255,132,42);" onclick="updateValues(255,132,42,32293)">ORANGE</td>
-                <td class="osColors" style="background-color: rgb(182,32,0);" onclick="updateValues(182,32,0,22656)">BROWN</td>
-                <td class="osColors" style="background-color: rgb(0,0,134);" onclick="updateValues(0,0,134,16)">NAVY</td>
-                <td class="osColors" style="background-color: rgb(0,146,255);" onclick="updateValues(0,146,255,607)">LTBLUE</td>
-                <td class="osColors" style="background-color: rgb(255,255,0); color: #000000;" onclick="updateValues(255,255,0,32736)">YELLOW</td>
-                <td class="osColors" style="background-color: rgb(255,255,255); color: #000000;" onclick="updateValues(255,255,255,32767)">WHITE</td>
-                <td class="osColors" style="background-color: rgb(231,227,231); color: #000000;" onclick="updateValues(231,227,231,29596)">LTGRAY</td>
-                <td class="osColors" style="background-color: rgb(199,195,199); color: #000000;" onclick="updateValues(199,195,199,25368)">MEDGRAY</td>
-                <td class="osColors" style="background-color: rgb(142,138,142); color: #000000;" onclick="updateValues(142,138,142,17969)">GRAY</td>
-                <td class="osColors" style="background-color: rgb(81,85,81);" onclick="updateValues(81,85,81,10570)">DARKGRAY</td>
-            </tr>
-        </table>
+        <div class="table" id="OSColors" onmouseout="onMouseOut()"> <!-- TI-OS color table -->
+            <div class="osColors" style="background-color: rgb(0,0,255);" onclick="updateValues(0,0,255,31)" onmouseover="hover(1,0,0,255)">BLUE</div>
+            <div class="osColors" style="background-color: rgb(255,0,0);" onclick="updateValues(255,0,0,31744)" onmouseover="hover(2,255,0,0)">RED</div>
+            <div class="osColors" style="background-color: rgb(0, 0, 0);" onclick="updateValues(0,0,0,0)" onmouseover="hover(3,0,0,0)">BLACK</div>
+            <div class="osColors" style="background-color: rgb(255,0,255);" onclick="updateValues(255,0,255,31775)" onmouseover="hover(4,255,0,255)">MAGENTA</div>
+            <div class="osColors" style="background-color: rgb(0,158,0);" onclick="updateValues(0,158,0,608)" onmouseover="hover(5,0,158,0)">GREEN</div>
+            <div class="osColors" style="background-color: rgb(255,132,42);" onclick="updateValues(255,132,42,32293)" onmouseover="hover(6,255,132,42)">ORANGE</div>
+            <div class="osColors" style="background-color: rgb(182,32,0);" onclick="updateValues(182,32,0,22656)" onmouseover="hover(7,182,32,0)">BROWN</div>
+            <div class="osColors" style="background-color: rgb(0,0,134);" onclick="updateValues(0,0,134,16)" onmouseover="hover(8,0,0,134)">NAVY</div>
+            <div class="osColors" style="background-color: rgb(0,146,255);" onclick="updateValues(0,146,255,607)" onmouseover="hover(9,0,146,255)">LTBLUE</div>
+            <div class="osColors" style="background-color: rgb(255,255,0); color: #000000;" onclick="updateValues(255,255,0,32736)" onmouseover="hover(10,255,255,0)">YELLOW</div>
+            <div class="osColors" style="background-color: rgb(255,255,255); color: #000000;" onclick="updateValues(255,255,255,32767)" onmouseover="hover(11,255,255,255)">WHITE</div>
+            <div class="osColors" style="background-color: rgb(231,227,231); color: #000000;" onclick="updateValues(231,227,231,29596)" onmouseover="hover(12,231,227,231)">LTGRAY</div>
+            <div class="osColors" style="background-color: rgb(199,195,199); color: #000000;" onclick="updateValues(199,195,199,25368)" onmouseover="hover(13,199,195,199)">MEDGRAY</div>
+            <div class="osColors" style="background-color: rgb(142,138,142); color: #000000;" onclick="updateValues(142,138,142,17969)" onmouseover="hover(14,142,138,142)">GRAY</div>
+            <div class="osColors" style="background-color: rgb(81,85,81);" onclick="updateValues(81,85,81,10570)" onmouseover="hover(15,81,85,81)">DARKGRAY</div>
+        </div>
         <p  id ="TI" style="font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;">TI-OS Colors</p>
         <br> <!-- for smaller screen sizes -->
         <footer> <!-- advertising! -->
@@ -254,9 +268,9 @@
             // get slider value
             document.getElementById("1555slider").oninput = function() {
                 // convert 1555 to rgb
-                var red = Math.floor((this.value >> 10 & 31) * 255 / 31);
-                var green = Math.floor((this.value >> 10 & 32 | this.value >> 5 & 31) * 255 / 31);
-                var blue = Math.floor((this.value & 31) * 255 / 31);
+                red = Math.floor((this.value >> 10 & 31) * 255 / 31);
+                green = Math.floor((this.value >> 10 & 32 | this.value >> 5 & 31) * 255 / 31);
+                blue = Math.floor((this.value & 31) * 255 / 31);
                 updateValues(red, green, blue, this.value);
             }
 
@@ -268,9 +282,9 @@
                 if (hex.length == 0) hex = '0';
                 var c1555 = parseInt(hex, 16).toString(10);
                 // convert 1555 to rgb
-                var red = Math.floor((c1555 >> 10 & 31) * 255 / 31);
-                var green = Math.floor((c1555 >> 10 & 32 | c1555 >> 5 & 31) * 255 / 31);
-                var blue = Math.floor((c1555 & 31) * 255 / 31);
+                red = Math.floor((c1555 >> 10 & 31) * 255 / 31);
+                green = Math.floor((c1555 >> 10 & 32 | c1555 >> 5 & 31) * 255 / 31);
+                blue = Math.floor((c1555 & 31) * 255 / 31);
                 updateValues(red, green, blue, c1555);
             }
 
@@ -286,42 +300,55 @@
                 else if (hex.length == 3) hex = '000' + hex;
                 else if (hex.length == 4) hex = '00' + hex;
                 else if (hex.length == 5) hex = '0' + hex;
-                var red = parseInt(hex.substring(0,2), 16).toString(10);
-                var green = parseInt(hex.substring(2,4), 16).toString(10);
-                var blue = parseInt(hex.substring(4,hex.length), 16).toString(10);
+                red = parseInt(hex.substring(0,2), 16).toString(10);
+                green = parseInt(hex.substring(2,4), 16).toString(10);
+                blue = parseInt(hex.substring(4,hex.length), 16).toString(10);
                 var c1555 = RGBto1555(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
             // get red input value
             document.getElementById("redUserValue").oninput = function() {
-                var green = document.getElementById("greenUserValue").value;
-                var blue = document.getElementById("blueUserValue").value;
-                var c1555 = RGBto1555(this.value, green, blue); 
-                updateValues(this.value, green, blue, c1555);
+                red = this.value;
+                green = document.getElementById("greenUserValue").value;
+                blue = document.getElementById("blueUserValue").value;
+                var c1555 = RGBto1555(red, green, blue); 
+                updateValues(red, green, blue, c1555);
             }
 
             // get green input value
             document.getElementById("greenUserValue").oninput = function() {
-                var red = document.getElementById("redUserValue").value;
-                var blue = document.getElementById("blueUserValue").value;
-                var c1555 = RGBto1555(red, this.value, blue);
-                updateValues(red, this.value, blue, c1555);
+                red = document.getElementById("redUserValue").value;
+                green = this.value;
+                blue = document.getElementById("blueUserValue").value;
+                var c1555 = RGBto1555(red, green, blue);
+                updateValues(red, green, blue, c1555);
             }
 
-            // get bluw input value
+            // get blue input value
             document.getElementById("blueUserValue").oninput = function() {
-                var red = document.getElementById("redUserValue").value;
-                var green = document.getElementById("greenUserValue").value;
-                var c1555 = RGBto1555(red, green, this.value);
-                updateValues(red, green, this.value, c1555);
+                red = document.getElementById("redUserValue").value;
+                green = document.getElementById("greenUserValue").value;
+                blue = this.value;
+                var c1555 = RGBto1555(red, green, blue);
+                updateValues(red, green, blue, c1555);
             }
 
+            var red = 0;
+            var green = 0;
+            var blue = 0;
+            var n;
+            var r;
+            var g;
+            var b;
+            var oldn = 1;
+            var oldr = 0;
+            var oldg = 0;
+            var oldb = 255;
             // set mode
             if (localStorage.getItem("1555ColorMode") == 'dark') { // switch to dark mode
                 darkMode();
             } else { // default mode is light
-                // default positions and settings
                 localStorage.setItem("1555ColorMode","light");
             }
         </script>
