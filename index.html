@@ -154,7 +154,7 @@
 
             function RGBto1555(red, green, blue) { // convert the rgb to 1555
                 var scaledGreen = green * 63 / 255;
-                var c1555 = (red * 31 / 255 << 10) | (scaledGreen << 10 & 0x8000) | (scaledGreen << 4 & 0x03E0) | (blue * 31 / 255);
+                var c1555 = (red * 31 / 255 << 10) | (scaledGreen << 15 & 0x8000) | (scaledGreen << 4 & 0x03E0) | (blue * 31 / 255);
                 return c1555;
             }
 
