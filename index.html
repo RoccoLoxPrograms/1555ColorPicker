@@ -153,7 +153,8 @@
             }
 
             function RGBto1555(red, green, blue) { // convert the rgb to 1555
-                var c1555 = ((red >> 3) << 10) | ((green >> 3) << 5) | (blue >> 3); // thank you MateoConLechuga (taken from the CE C toolchain)
+                var scaledGreen = green * 63 / 255;
+                var c1555 = (red * 31 / 255 << 10) | (scaledGreen << 10 & 0x8000) | (scaledGreen << 4 & 0x03E0) | (blue * 31 / 255);
                 return c1555;
             }
 
@@ -227,7 +228,7 @@
         <p id="changeColorPicker" style="font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal;">
             (<a href="https://roccoloxprograms.github.io/XlibcColorPicker" style="padding: 0px;">Xlibc Color Picker</a>)
         </p>
-        <input type="range" min="0" max="32767" value="0" class="slider" id="1555slider">
+        <input type="range" min="0" max="65535" value="0" class="slider" id="1555slider">
         <br>
         <br>
         <p style="padding: 0px; margin: unset; font-size: 150%;" id="userInput">
