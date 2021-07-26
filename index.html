@@ -13,10 +13,9 @@
             }
             div.table {
                 display: flex;
+                border-width: 1px;
                 margin: 10px auto;
-                border-width: thin;
-                border-style: solid;
-                border-color: #000000;
+                border: solid black 1px;
                 justify-content: center;
             }
             div.osColors {
@@ -53,6 +52,7 @@
                 margin: 20px auto 35px auto;
             }
             footer {
+                background-color: rgb(243,243,243);
                 bottom: 0px;
                 left: 0px;
                 position: fixed;
@@ -143,7 +143,7 @@
                 green = Math.floor((color1555 >> 10 & 32 | color1555 >> 5 & 31) * 255 / 31);
                 blue = Math.floor((color1555 & 31) * 255 / 31);
                 // update the color box
-                if (localStorage.getItem("1555ColorMode") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
+                if (localStorage.getItem("RLP_color_picker_color_mode_090419") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
                 // update the hex value box
                 if (redHex.length == 1) redHex = '0' + redHex;
@@ -158,11 +158,11 @@
             }
 
             function changeMode() {
-                if (localStorage.getItem("1555ColorMode") == 'light') { // change mode
-                    localStorage.setItem("1555ColorMode","dark");
-                    darkMode();
+                if (localStorage.getItem("RLP_color_picker_color_mode_090419") == 'light') { // change mode
+                    localStorage.setItem("RLP_color_picker_color_mode_090419","dark");
+                    darkMode(); 
                 } else {
-                    localStorage.setItem("1555ColorMode","light");
+                    localStorage.setItem("RLP_color_picker_color_mode_090419","light");
                     lightMode();
                 }
             }
@@ -215,7 +215,7 @@
             }
 
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.0\nDate: 2021-07-21\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.0\nDate: 2021-07-23\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -334,6 +334,7 @@
                 updateValues(red, green, blue, c1555);
             }
 
+            // define all of these variables
             var red = 0;
             var green = 0;
             var blue = 0;
@@ -346,11 +347,8 @@
             var oldg = 0;
             var oldb = 255;
             // set mode
-            if (localStorage.getItem("1555ColorMode") == 'dark') { // switch to dark mode
-                darkMode();
-            } else { // default mode is light
-                localStorage.setItem("1555ColorMode","light");
-            }
+            if (localStorage.getItem("RLP_color_picker_color_mode_090419") == 'dark') darkMode(); // switch to dark mode
+            else localStorage.setItem("RLP_color_picker_color_mode_090419","light"); // default mode is light
         </script>
     </body>
 </html>
