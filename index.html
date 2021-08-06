@@ -1,7 +1,7 @@
 <!DOCTYPE html> <!-- May 2021 - RoccoLox Programs -->
 <!--
     Thank you epsilon5. This wouldn't exist without you.
-    Thank you Zeroko, for your rgb1555 to rgb888 conversion code.
+    Thank you Zeroko for your rgb1555 to rgb888 (and vice versa) conversion code.
     Thank you to anyone else who suggested features and has used this program.
 -->
 <html lang="en">
@@ -15,7 +15,10 @@
                 display: flex;
                 border-width: 1px;
                 margin: 10px auto;
+                width: auto;
+                background-color: #000000;
                 border: solid black 1px;
+                height: fit-content;
                 justify-content: center;
             }
             div.osColors {
@@ -143,8 +146,8 @@
                 green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63); // thank you again, Zeroko
                 blue = Math.round((color1555 & 31) * 255 / 31);
                 // update the color box
-                if (localStorage.getItem("RLP_color_picker_color_mode_090419") == "dark") document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
-                else document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
+                if (localStorage.getItem("RLP_color_picker_color_mode_090419") == "dark") document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
+                else document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
                 // update the hex value box
                 if (redHex.length == 1) redHex = '0' + redHex;
                 if (greenHex.length == 1) greenHex = '0' + greenHex;
@@ -172,10 +175,10 @@
                 document.getElementById("body").setAttribute("style","background-color: rgb(243,243,243);"); // chanhe background
                 document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(243,243,243);"); // change footer background
                 document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #000000;');
-                document.getElementById("OSColors").setAttribute("style","border-color: #000000;"); // change border color
+                document.getElementById("OSColors").setAttribute("style","border: solid black thin; background-color: #000000;"); // change border color
                 document.getElementById("TI").setAttribute("style","font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;"); // change text color
                 document.getElementById("1555hexValue").setAttribute("style","font-size: 175%; padding: 0px; margin: 5px; color: #000000;");
-                document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
+                document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border: solid black thin;`);
                 document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #000000;");
                 document.getElementById("title").setAttribute("style","color: #000000;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #000000; float: left;");
@@ -187,10 +190,10 @@
                 document.getElementById("body").setAttribute("style","background-color: rgb(40,40,40);"); // chanhe background
                 document.getElementsByTagName("footer")[0].setAttribute("style","background-color: rgb(40,40,40);"); // change footer background
                 document.getElementById('changeColorPicker').setAttribute('style','font-size: 100%;  margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal; color: #ffffff;');
-                document.getElementById("OSColors").setAttribute("style","border-color: #ffffff;"); // change border color
+                document.getElementById("OSColors").setAttribute("style","border: solid white thin; background-color: #ffffff;"); // change border color
                 document.getElementById("TI").setAttribute("style","font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px; color: #ffffff;"); // change text color
                 document.getElementById("1555hexValue").setAttribute("style","font-size: 175%; padding: 0px; margin: 5px; color: #ffffff;");
-                document.getElementById("text").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
+                document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border: solid white thin;`);
                 document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #ffffff;");
                 document.getElementById("title").setAttribute("style","color: #ffffff;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #ffffff; float: left;");
@@ -216,7 +219,7 @@
             }
 
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.1\nDate: 2021-07-27\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.2\nDate: 2021-07-31\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -240,7 +243,7 @@
         </p>
         <br>
         <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000&nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00</p>
-        <p id="text" style="background-color: #000000; border-color: #000000; border-width: thin; border-style: solid;"></p>
+        <p id="colorView" style="background-color: #000000; border: solid black thin;"></p>
         <div class="table" id="OSColors" onmouseout="onMouseOut()"> <!-- TI-OS color table -->
             <div class="osColors" style="background-color: rgb(0,0,255);" onclick="updateValues(0,0,255,31)" onmouseover="hover(1,0,0,255)">BLUE</div>
             <div class="osColors" style="background-color: rgb(255,0,0);" onclick="updateValues(255,0,0,31744)" onmouseover="hover(2,255,0,0)">RED</div>
@@ -336,17 +339,7 @@
             }
 
             // define all of these variables
-            var red = 0;
-            var green = 0;
-            var blue = 0;
-            var n;
-            var r;
-            var g;
-            var b;
-            var oldn = 1;
-            var oldr = 0;
-            var oldg = 0;
-            var oldb = 255;
+            var red = 0, green = 0, blue = 0, oldn = 1, oldr = 0, oldg = 0, oldb = 255;
             // set mode
             if (localStorage.getItem("RLP_color_picker_color_mode_090419") == 'dark') darkMode(); // switch to dark mode
             else localStorage.setItem("RLP_color_picker_color_mode_090419","light"); // default mode is light
