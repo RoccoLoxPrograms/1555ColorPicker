@@ -84,7 +84,7 @@
                 padding: inherit;
                 font-size: 100%;
                 text-align: center;
-                width: 160px;
+                width: 140px;
             }
             /* slider styling */
             .slider {
@@ -146,7 +146,7 @@
                 green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63); // thank you again, Zeroko
                 blue = Math.round((color1555 & 31) * 255 / 31);
                 // update the color box
-                if (localStorage.getItem("RLP_color_picker_color_mode_090419") == "dark") document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
+                if (localStorage.getItem("RLP_1555ColorPicker_mode_052920") == "dark") document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 else document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
                 // update the hex value box
                 if (redHex.length == 1) redHex = '0' + redHex;
@@ -162,11 +162,11 @@
             }
 
             function changeMode() {
-                if (localStorage.getItem("RLP_color_picker_color_mode_090419") == 'light') { // change mode
-                    localStorage.setItem("RLP_color_picker_color_mode_090419","dark");
+                if (localStorage.getItem("RLP_1555ColorPicker_mode_052920") == 'light') { // change mode
+                    localStorage.setItem("RLP_1555ColorPicker_mode_052920","dark");
                     darkMode(); 
                 } else {
-                    localStorage.setItem("RLP_color_picker_color_mode_090419","light");
+                    localStorage.setItem("RLP_1555ColorPicker_mode_052920","light");
                     lightMode();
                 }
             }
@@ -219,7 +219,7 @@
             }
 
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.2\nDate: 2021-07-31\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.3\nDate: 2021-08-14\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -314,9 +314,10 @@
             // get red input value
             document.getElementById("redUserValue").oninput = function() {
                 red = this.value;
+                if (red == '') red = 0;
                 green = document.getElementById("greenUserValue").value;
                 blue = document.getElementById("blueUserValue").value;
-                var c1555 = RGBto1555(red, green, blue); 
+                var c1555 = RGBto1555(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
@@ -324,6 +325,7 @@
             document.getElementById("greenUserValue").oninput = function() {
                 red = document.getElementById("redUserValue").value;
                 green = this.value;
+                if (green == '') green = 0;
                 blue = document.getElementById("blueUserValue").value;
                 var c1555 = RGBto1555(red, green, blue);
                 updateValues(red, green, blue, c1555);
@@ -334,6 +336,7 @@
                 red = document.getElementById("redUserValue").value;
                 green = document.getElementById("greenUserValue").value;
                 blue = this.value;
+                if (blue == '') blue = 0;
                 var c1555 = RGBto1555(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
@@ -341,8 +344,9 @@
             // define all of these variables
             var red = 0, green = 0, blue = 0, oldn = 1, oldr = 0, oldg = 0, oldb = 255;
             // set mode
-            if (localStorage.getItem("RLP_color_picker_color_mode_090419") == 'dark') darkMode(); // switch to dark mode
-            else localStorage.setItem("RLP_color_picker_color_mode_090419","light"); // default mode is light
+            localStorage.setItem("RLP_1555ColorPicker_mode_052920", localStorage.getItem("RLP_XlibcColorPicker_mode_090419"));
+            if (localStorage.getItem("RLP_1555ColorPicker_mode_052920") == 'dark') darkMode(); // switch to dark mode
+            else localStorage.setItem("RLP_1555ColorPicker_mode_052920","light"); // default mode is light
         </script>
     </body>
 </html>
