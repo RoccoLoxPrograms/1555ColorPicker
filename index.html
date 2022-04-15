@@ -74,7 +74,7 @@
                 padding: 0px 5px 5px 5px;
             }
             input {
-                border-radius: 6px;
+                border-radius: 5px;
                 border-width: 1px;
             }
             input:focus {
@@ -91,7 +91,7 @@
                 text-align: center;
                 width: 140px;
             }
-            h3#mode {
+            h3.modeDisplay {
                 float: left;
                 padding-left: 5px;
                 cursor: text;
@@ -177,16 +177,30 @@
         </style>
         <script type="text/javascript">
             function updateValues(red, green, blue, color1555) {
+                var paletteValue;
                 document.getElementById("1555slider").value = color1555;
-                c1555 = parseInt(color1555).toString(16).toUpperCase(); // get the 1555 hex value
+                c1555 = parseInt(color1555).toString(16).toUpperCase(); // get the 1555/565 hex value
                 document.getElementById("1555userValue").value = '000'.substr(0, 4 - c1555.length) + c1555;
                 // make sure the length is 6
                 if (c1555.length == 1) c1555 = '0x000' + c1555;
                 else if (c1555.length == 2) c1555 = '0x00' + c1555;
                 else if (c1555.length == 3) c1555 = '0x0' + c1555;
                 else if (c1555.length == 4) c1555 = '0x' + c1555;
-                var pal1 = c1555.substring(4,6); // first palette color
-                var pal2 = c1555.substring(0,4); // second palette color
+                if (colorMode565) {
+                    var red1555 = ((((color1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    var green1555 = ((((color1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    var blue1555 = (((color1555 & 0x1F) * 527) + 23) >> 6;
+                    paletteValue = RGBto1555(red1555, green1555, blue1555);
+                    paletteValue = parseInt(paletteValue).toString(16).toUpperCase(); // get the 1555 hex value
+                    if (paletteValue.length == 1) paletteValue = '0x000' + paletteValue;
+                    else if (paletteValue.length == 2) paletteValue = '0x00' + paletteValue;
+                    else if (paletteValue.length == 3) paletteValue = '0x0' + paletteValue;
+                    else if (paletteValue.length == 4) paletteValue = '0x' + paletteValue;
+                } else {
+                    paletteValue = c1555;
+                }
+                var pal1 = paletteValue.substring(4,6); // first palette color
+                var pal2 = paletteValue.substring(0,4); // second palette color
                 // find the hex value for the rgb color
                 var redHex = parseInt(red).toString(16).toUpperCase();
                 var greenHex = parseInt(green).toString(16).toUpperCase();
@@ -195,11 +209,18 @@
                 document.getElementById("redUserValue").value = red;
                 document.getElementById("greenUserValue").value = green;
                 document.getElementById("blueUserValue").value = blue;
-                document.getElementById("1555hexValue").innerHTML = `1555: ${c1555}&nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
-                // thank you Zeroko
-                red = Math.round((color1555 >> 10 & 31) * 255 / 31);
-                green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63); // thank you again, Zeroko
-                blue = Math.round((color1555 & 31) * 255 / 31);
+                if (!colorMode565) document.getElementById("1555hexValue").innerHTML = `1555: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                else document.getElementById("1555hexValue").innerHTML = `565: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                if (!colorMode565) {
+                    // thank you Zeroko
+                    red = Math.round((color1555 >> 10 & 31) * 255 / 31);
+                    green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63);
+                    blue = Math.round((color1555 & 31) * 255 / 31);
+                } else {
+                    red = ((((color1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((color1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((color1555 & 0x1F) * 527) + 23) >> 6;
+                }
                 // update the color box
                 if (localStorage.getItem("RLP_1555ColorPicker_mode_052920") == "dark") document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 else document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
@@ -210,10 +231,37 @@
                 document.getElementById("hexUserValue").value = redHex + greenHex + blueHex;
             }
 
-            function RGBto1555(red, green, blue) { // convert the rgb to 1555
-                var scaledGreen = Math.round(green * 63 / 255); // thank you very much again, Zeroko
-                var c1555 = (Math.round(red * 31 / 255) << 10) | (scaledGreen << 15 & 0x8000) | (scaledGreen << 4 & 0x03E0) | Math.round(blue * 31 / 255);
-                return c1555;
+            function OScolor(r, g, b, rgb1555, rgb565) {
+                red = r;
+                green = g;
+                blue = b;
+                if (!colorMode565) c1555 = rgb1555;
+                else c1555 = rgb565;
+                updateValues(red, green, blue, c1555);
+            }
+
+            function RGBto1555(r, g, b) { // convert the rgb888 to rgb1555
+                var scaledGreen = Math.round(g * 63 / 255);
+                var rgb1555 = (Math.round(r * 31 / 255) << 10) | (scaledGreen << 15 & 0x8000) | (scaledGreen << 4 & 0x03E0) | Math.round(b * 31 / 255);
+                return rgb1555;
+            }
+
+            function RGBto565(r, g, b) { // convert rgb888 to rgb565
+                var rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+                return rgb565;
+            }
+
+            function changeRGBmode() {
+                if (colorMode565) {
+                    colorMode565 = false;
+                    document.getElementById('rgbMode').innerHTML = "1555 Mode";
+                    c1555 = RGBto1555(red, green, blue);
+                } else {
+                    colorMode565 = true;
+                    document.getElementById('rgbMode').innerHTML = "565 Mode";
+                    c1555 = RGBto565(red, green, blue);
+                }
+                updateValues(red, green, blue, c1555);
             }
 
             function changeMode() {
@@ -237,8 +285,9 @@
                 document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #000000;");
                 document.getElementById("title").setAttribute("style","color: #000000;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #000000;");
+                document.getElementById("rgbMode").setAttribute("style","color: #000000;");
                 document.getElementById("copyright").setAttribute("style","color: #808080; float: right;");
-                document.getElementById("mode").innerHTML = 'Light Mode'; // change option
+                document.getElementById("mode").innerHTML = 'Light Mode &nbsp;'; // change option
             }
 
             function darkMode() {
@@ -252,8 +301,9 @@
                 document.getElementById("userInput").setAttribute("style","padding: 0px; margin: unset; font-size: 150%; color: #ffffff;");
                 document.getElementById("title").setAttribute("style","color: #ffffff;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #ffffff;");
+                document.getElementById("rgbMode").setAttribute("style","color: #ffffff;");
                 document.getElementById("copyright").setAttribute("style","color: #b3b3b3; float: right;");
-                document.getElementById("mode").innerHTML = 'Dark Mode'; // change option
+                document.getElementById("mode").innerHTML = 'Dark Mode &nbsp;'; // change option
             }
 
             function hover(n, r, g, b) {
@@ -273,8 +323,12 @@
                 else document.getElementsByTagName('div')[oldn].setAttribute("style",`background-color: rgb(${oldr}, ${oldg}, ${oldb}); color: #000000;`);
             }
 
+            function selectAll(id) {
+                document.getElementById(id).select();
+            }
+
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.4\nDate: 2022-01-15\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.5\nDate: 2022-04-15\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -283,8 +337,13 @@
             <input type="checkbox" id="switch" onclick="changeMode()">
             <span class="slider round"></span>
         </label>
-        <h3 id="mode">Light Mode</h3> <!-- mode indicator -->
-        <h3 id="copyright" style="color: #808080; float: right;" onclick="info()">&copy; 2021-2022 RoccoLox Programs</h3>
+        <h3 id="mode" class="modeDisplay">Light Mode &nbsp;</h3>
+        <label class="switch" style="float: left;">
+            <input type="checkbox" onclick="changeRGBmode()">
+            <span class="slider round"></span>
+        </label>
+        <h3 id="rgbMode" class="modeDisplay">1555 Mode</h3>
+        <h3 id="copyright" style="color: #808080; float: right;" onclick="info()"></h3>
         <br>
         <h1 id="title">1555 Color Picker</h1>
         <p id="changeColorPicker" style="font-size: 100%; margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal;">
@@ -294,33 +353,34 @@
         <br>
         <br>
         <p style="padding: 0px; margin: unset; font-size: 150%;" id="userInput">
-            1555 (hex): <input type="text" value="0000" class="textValue" id="1555userValue">&nbsp;
-            &nbsp; RED: <input type="number" min="0" max="255" value="0" class="numberValue" id="redUserValue">
-            GREEN: <input type="number" min="0" max="255" value="0" class="numberValue" id="greenUserValue">
-            BLUE: <input type="number" min="0" max="255" value="0" class="numberValue" id="blueUserValue">&nbsp;
-            &nbsp; HEX: <input type="text" value="000000" class="textValue" id="hexUserValue">
+            HEX (16-bit): 
+            <input type="text" value="0000" class="textValue" id="1555userValue" onclick="selectAll('1555userValue')">&nbsp;
+            &nbsp; RED: <input type="number" min="0" max="255" value="0" class="numberValue" id="redUserValue" onclick="selectAll('redUserValue')">
+            GREEN: <input type="number" min="0" max="255" value="0" class="numberValue" id="greenUserValue" onclick="selectAll('greenUserValue')">
+            BLUE: <input type="number" min="0" max="255" value="0" class="numberValue" id="blueUserValue" onclick="selectAll('blueUserValue')">&nbsp;
+            &nbsp; HEX (24-bit): <input type="text" value="000000" class="textValue" id="hexUserValue" onclick="selectAll('hexUserValue')">
         </p>
         <br>
-        <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000&nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00</p>
+        <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000 &nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00</p>
         <p id="colorView" style="background-color: #000000; border: solid black thin;"></p>
         <div class="table" id="OSColors" onmouseout="onMouseOut()"> <!-- TI-OS color table -->
-            <div class="osColors" style="background-color: rgb(0,0,255);" onclick="updateValues(0,0,255,31)" onmouseover="hover(1,0,0,255)">BLUE</div>
-            <div class="osColors" style="background-color: rgb(255,0,0);" onclick="updateValues(255,0,0,31744)" onmouseover="hover(2,255,0,0)">RED</div>
-            <div class="osColors" style="background-color: rgb(0, 0, 0);" onclick="updateValues(0,0,0,0)" onmouseover="hover(3,0,0,0)">BLACK</div>
-            <div class="osColors" style="background-color: rgb(255,0,255);" onclick="updateValues(255,0,255,31775)" onmouseover="hover(4,255,0,255)">MAGENTA</div>
-            <div class="osColors" style="background-color: rgb(0,158,0);" onclick="updateValues(0,158,0,33376)" onmouseover="hover(5,0,158,0)">GREEN</div>
-            <div class="osColors" style="background-color: rgb(255,134,41);" onclick="updateValues(255,134,41,65029)" onmouseover="hover(6,255,134,41)">ORANGE</div>
-            <div class="osColors" style="background-color: rgb(181,32,0);" onclick="updateValues(181,32,0,22656)" onmouseover="hover(7,181,32,0)">BROWN</div>
-            <div class="osColors" style="background-color: rgb(0,0,132);" onclick="updateValues(0,0,132,16)" onmouseover="hover(8,0,0,132)">NAVY</div>
-            <div class="osColors" style="background-color: rgb(0,146,255);" onclick="updateValues(0,146,255,607)" onmouseover="hover(9,0,146,255)">LTBLUE</div>
-            <div class="osColors" style="background-color: rgb(255,255,0); color: #000000;" onclick="updateValues(255,255,0,65504)" onmouseover="hover(10,255,255,0)">YELLOW</div>
-            <div class="osColors" style="background-color: rgb(255,255,255); color: #000000;" onclick="updateValues(255,255,255,65535)" onmouseover="hover(11,255,255,255)">WHITE</div>
-            <div class="osColors" style="background-color: rgb(230,227,230); color: #000000;" onclick="updateValues(230,227,230,29596)" onmouseover="hover(12,230,227,230)">LTGRAY</div>
-            <div class="osColors" style="background-color: rgb(197,194,197); color: #000000;" onclick="updateValues(197,194,197,25368)" onmouseover="hover(13,197,194,197)">MEDGRAY</div>
-            <div class="osColors" style="background-color: rgb(140,138,140);" onclick="updateValues(140,138,140,17969)" onmouseover="hover(14,140,138,140)">GRAY</div>
-            <div class="osColors" style="background-color: rgb(82,85,82);" onclick="updateValues(82,85,82,43338)" onmouseover="hover(15,82,85,82)">DARKGRAY</div>
+            <div class="osColors" style="background-color: rgb(0, 0, 255);" onclick="OScolor(0,0,255,31,31)" onmouseover="hover(1,0,0,255)">BLUE</div>
+            <div class="osColors" style="background-color: rgb(255,0,0);" onclick="OScolor(255,0,0,31744,63488)" onmouseover="hover(2,255,0,0)">RED</div>
+            <div class="osColors" style="background-color: rgb(0, 0, 0);" onclick="OScolor(0,0,0,0,0)" onmouseover="hover(3,0,0,0)">BLACK</div>
+            <div class="osColors" style="background-color: rgb(255,0,255);" onclick="OScolor(255,0,255,31775,63519)" onmouseover="hover(4,255,0,255)">MAGENTA</div>
+            <div class="osColors" style="background-color: rgb(0,158,0);" onclick="OScolor(0,158,0,33376,1248)" onmouseover="hover(5,0,158,0)">GREEN</div>
+            <div class="osColors" style="background-color: rgb(255,142,33);" onclick="OScolor(255,142,33,65060,64612)" onmouseover="hover(6,255,142,33)">ORANGE</div>
+            <div class="osColors" style="background-color: rgb(181,32,0);" onclick="OScolor(181,32,0,22656,45312)" onmouseover="hover(7,181,32,0)">BROWN</div>
+            <div class="osColors" style="background-color: rgb(0,0,132);" onclick="OScolor(0,0,132,16,16)" onmouseover="hover(8,0,0,132)">NAVY</div>
+            <div class="osColors" style="background-color: rgb(0,146,255);" onclick="OScolor(0,146,255,607,1183)" onmouseover="hover(9,0,146,255)">LTBLUE</div>
+            <div class="osColors" style="background-color: rgb(255,255,0); color: #000000;" onclick="OScolor(255,255,0,65504,65504)" onmouseover="hover(10,255,255,0)">YELLOW</div>
+            <div class="osColors" style="background-color: rgb(255,255,255); color: #000000;" onclick="OScolor(255,255,255,65535,65535)" onmouseover="hover(11,255,255,255)">WHITE</div>
+            <div class="osColors" style="background-color: rgb(230,227,230); color: #000000;" onclick="OScolor(230,227,230,29596,59164)" onmouseover="hover(12,230,227,230)">LTGRAY</div>
+            <div class="osColors" style="background-color: rgb(197,194,197); color: #000000;" onclick="OScolor(197,194,197,25368,50712)" onmouseover="hover(13,197,194,197)">MEDGRAY</div>
+            <div class="osColors" style="background-color: rgb(140,138,140);" onclick="OScolor(140,138,140,17969,35921)" onmouseover="hover(14,140,138,140)">GRAY</div>
+            <div class="osColors" style="background-color: rgb(82,85,82);" onclick="OScolor(82,85,82,43338,21162)" onmouseover="hover(15,82,85,82)">DARKGRAY</div>
         </div>
-        <p  id ="TI" style="font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;">TI-OS Colors</p>
+        <p id ="TI" style="font-size: 170%; font-family: sans-serif; font-weight: bold; text-align: center; margin: 5px 0px; padding: 0px;">TI-OS Colors</p>
         <br> <!-- for smaller screen sizes -->
         <footer> <!-- advertising! -->
             <hr style="margin: 0px; margin-bottom: 5px;">
@@ -330,24 +390,38 @@
         <script type="text/javascript">
             // get slider value
             document.getElementById("1555slider").oninput = function() {
-                // convert 1555 to rgb
-                red = Math.round((this.value >> 10 & 31) * 255 / 31);
-                green = Math.round((this.value >> 15 & 1 | this.value >> 4 & 62) * 255 / 63);
-                blue = Math.round((this.value & 31) * 255 / 31);
+                if (!colorMode565) {
+                    // convert 1555 to rgb
+                    red = Math.round((this.value >> 10 & 31) * 255 / 31);
+                    green = Math.round((this.value >> 15 & 1 | this.value >> 4 & 62) * 255 / 63);
+                    blue = Math.round((this.value & 31) * 255 / 31);
+                } else {
+                    // convert 565 to rgb
+                    red = ((((this.value >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((this.value >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((this.value & 0x1F) * 527) + 23) >> 6;
+                }
                 updateValues(red, green, blue, this.value);
             }
 
-            // get 1555 input value
+            // get 1555/565 input value
             document.getElementById("1555userValue").oninput = function() {
                 var hex = this.value;
                 // in case the string is too long or too short
                 if (hex.length == 5) hex = hex.substring(1,5);
                 if (hex.length == 0) hex = '0';
                 var c1555 = parseInt(hex, 16).toString(10);
-                // convert 1555 to rgb
-                red = Math.round((c1555 >> 10 & 31) * 255 / 31);
-                green = Math.round((c1555 >> 15 & 1 | c1555 >> 4 & 62) * 255 / 63);
-                blue = Math.round((c1555 & 31) * 255 / 31);
+                if (!colorMode565) {
+                    // convert 1555 to rgb
+                    red = Math.round((c1555 >> 10 & 31) * 255 / 31);
+                    green = Math.round((c1555 >> 15 & 1 | c1555 >> 4 & 62) * 255 / 63);
+                    blue = Math.round((c1555 & 31) * 255 / 31);
+                } else {
+                    // convert 565 to rgb
+                    red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                }
                 updateValues(red, green, blue, c1555);
             }
 
@@ -367,6 +441,7 @@
                 green = parseInt(hex.substring(2,4), 16).toString(10);
                 blue = parseInt(hex.substring(4,hex.length), 16).toString(10);
                 var c1555 = RGBto1555(red, green, blue);
+                if (colorMode565) c1555 = RGBto565(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
@@ -377,6 +452,7 @@
                 green = document.getElementById("greenUserValue").value;
                 blue = document.getElementById("blueUserValue").value;
                 var c1555 = RGBto1555(red, green, blue);
+                if (colorMode565) c1555 = RGBto565(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
@@ -387,6 +463,7 @@
                 if (green == '') green = 0;
                 blue = document.getElementById("blueUserValue").value;
                 var c1555 = RGBto1555(red, green, blue);
+                if (colorMode565) c1555 = RGBto565(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
@@ -397,11 +474,15 @@
                 blue = this.value;
                 if (blue == '') blue = 0;
                 var c1555 = RGBto1555(red, green, blue);
+                if (colorMode565) c1555 = RGBto565(red, green, blue);
                 updateValues(red, green, blue, c1555);
             }
 
             // define all of these variables
-            var red = 0, green = 0, blue = 0, oldn = 1, oldr = 0, oldg = 0, oldb = 255;
+            var red = 0, green = 0, blue = 0, oldn = 1, oldr = 0, oldg = 0, oldb = 255, colorMode565 = false;
+            // change copyright year
+            const date = new Date();
+            document.getElementById("copyright").innerHTML = `&copy; 2021-${date.getFullYear()} RoccoLox Programs`;
             // set mode
             if (localStorage.getItem("RLP_1555ColorPicker_mode_052920") == 'dark') {
                 document.getElementById("switch").checked = true;
