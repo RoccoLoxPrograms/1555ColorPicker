@@ -174,6 +174,49 @@
             .slider.round:before {
                 border-radius: 50%;
             }
+            /* button styling */
+            .customPalette {
+                margin-top: 5px;
+                background-color: #bebebe;
+                color: #000000;
+                padding: 8px;
+                font-family: sans-serif;
+                border-radius: 5px;
+                cursor: pointer;
+                font-size: 55%;
+                border: hidden;
+                font-weight: bold;
+            }
+            .copyButtons {
+                padding: 5px 15px;
+                margin: 0px;
+                font-size: 75%;
+            }
+            /* dropdown box styling */
+            .dropdown {
+                position: relative;
+                display: inline-block;
+            }
+            .dropdownButtons {
+                display: none;
+                position: absolute;
+                border-radius: 5px;
+                box-shadow: 3px 3px 5px 2px #666666;
+                width: fit-content;
+                padding: 8px;
+                top: 110%;
+                z-index: 1;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .dropdownButtons input {
+                display: block;
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            .show {
+                display: block;
+            }
         </style>
         <script type="text/javascript">
             function updateValues(red, green, blue, color1555) {
@@ -209,8 +252,17 @@
                 document.getElementById("redUserValue").value = red;
                 document.getElementById("greenUserValue").value = green;
                 document.getElementById("blueUserValue").value = blue;
-                if (!colorMode565) document.getElementById("1555hexValue").innerHTML = `1555: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
-                else document.getElementById("1555hexValue").innerHTML = `565: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                if (!colorMode565) {
+                    document.getElementById("1555hexValue").innerHTML = `1555: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                } else {
+                    document.getElementById("1555hexValue").innerHTML = `565: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                    hiByte = parseInt(c1555.substr(2, 2), 16);
+                    loByte = parseInt(c1555.substr(4, 2), 16);
+                    document.getElementById("celticUserValLo").value = loByte;
+                    document.getElementById("celticUserValHi").value = hiByte;
+                    copyCeltic = loByte + ", " + hiByte;
+                }
+                copy1555 = c1555;
                 if (!colorMode565) {
                     // thank you Zeroko
                     red = Math.round((color1555 >> 10 & 31) * 255 / 31);
@@ -224,11 +276,13 @@
                 // update the color box
                 if (localStorage.getItem("RLP_1555ColorPicker_mode_052920") == "dark") document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #ffffff; border-width: thin; border-style: solid;`);
                 else document.getElementById("colorView").setAttribute("style",`background-color: rgb(${red}, ${green}, ${blue}); border-color: #000000; border-width: thin; border-style: solid;`);
+                copyRGB = "r: " + red + ", g: " + green + ", b: " + blue;
                 // update the hex value box
                 if (redHex.length == 1) redHex = '0' + redHex;
                 if (greenHex.length == 1) greenHex = '0' + greenHex;
                 if (blueHex.length == 1) blueHex = '0' + blueHex;
                 document.getElementById("hexUserValue").value = redHex + greenHex + blueHex;
+                copyHex = redHex + greenHex + blueHex;
             }
 
             function OScolor(r, g, b, rgb1555, rgb565) {
@@ -254,11 +308,11 @@
             function changeRGBmode() {
                 if (colorMode565) {
                     colorMode565 = false;
-                    document.getElementById('rgbMode').innerHTML = "1555 Mode";
+                    document.getElementById('rgbMode').innerHTML = "1555 Mode &nbsp;";
                     c1555 = RGBto1555(red, green, blue);
                 } else {
                     colorMode565 = true;
-                    document.getElementById('rgbMode').innerHTML = "565 Mode";
+                    document.getElementById('rgbMode').innerHTML = "565 Mode &nbsp;";
                     c1555 = RGBto565(red, green, blue);
                 }
                 updateValues(red, green, blue, c1555);
@@ -286,8 +340,10 @@
                 document.getElementById("title").setAttribute("style","color: #000000;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #000000;");
                 document.getElementById("rgbMode").setAttribute("style","color: #000000;");
-                document.getElementById("copyright").setAttribute("style","color: #808080; float: right;");
+                document.getElementById("copyright").setAttribute("style","color: #808080; float: right; padding-left: 5px;");
                 document.getElementById("mode").innerHTML = 'Light Mode &nbsp;'; // change option
+                document.getElementById("dropdownBox").setAttribute("style","background-color: rgb(243,243,243); border: solid black 1px;");
+                document.getElementById("breakLine").setAttribute("style","color: #000000; float: right; cursor: default;");
             }
 
             function darkMode() {
@@ -302,8 +358,10 @@
                 document.getElementById("title").setAttribute("style","color: #ffffff;"); // change text color
                 document.getElementById("mode").setAttribute("style","color: #ffffff;");
                 document.getElementById("rgbMode").setAttribute("style","color: #ffffff;");
-                document.getElementById("copyright").setAttribute("style","color: #b3b3b3; float: right;");
+                document.getElementById("copyright").setAttribute("style","color: #b3b3b3; float: right; padding-left: 5px;");
                 document.getElementById("mode").innerHTML = 'Dark Mode &nbsp;'; // change option
+                document.getElementById("dropdownBox").setAttribute("style","background-color: rgb(40,40,40); border: solid white 1px;");
+                document.getElementById("breakLine").setAttribute("style","color: #ffffff; float: right; cursor: default;");
             }
 
             function hover(n, r, g, b) {
@@ -327,8 +385,62 @@
                 document.getElementById(id).select();
             }
 
+            function dropdownButtons(buttonNumber) {
+                document.getElementById("dropdownBox").classList.toggle("show");
+                if (buttonNumber == 0) return;
+                if (buttonNumber == 1) {
+                    if (colorMode565) {
+                        color1555 = parseInt(copy1555.substr(2, 4), 16);
+                        red = ((((color1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                        green = ((((color1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                        blue = (((color1555 & 0x1F) * 527) + 23) >> 6;
+                        color1555 = RGBto1555(red, green, blue);
+                        copy1555 = parseInt(color1555).toString(16).toUpperCase();
+                        // make sure the length is 6
+                        if (copy1555.length == 1) copy1555 = '0x000' + copy1555;
+                        else if (copy1555.length == 2) copy1555 = '0x00' + copy1555;
+                        else if (copy1555.length == 3) copy1555 = '0x0' + copy1555;
+                        else if (copy1555.length == 4) copy1555 = '0x' + copy1555;
+                    }
+                    navigator.clipboard.writeText(copy1555);
+                } else if (buttonNumber == 2) {
+                    if (!colorMode565) {
+                        color1555 = parseInt(copy1555.substr(2, 4), 16);
+                        red = Math.round((color1555 >> 10 & 31) * 255 / 31);
+                        green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63);
+                        blue = Math.round((color1555 & 31) * 255 / 31);
+                        color1555 = RGBto565(red, green, blue);
+                        copy1555 = parseInt(color1555).toString(16).toUpperCase();
+                        // make sure the length is 6
+                        if (copy1555.length == 1) copy1555 = '0x000' + copy1555;
+                        else if (copy1555.length == 2) copy1555 = '0x00' + copy1555;
+                        else if (copy1555.length == 3) copy1555 = '0x0' + copy1555;
+                        else if (copy1555.length == 4) copy1555 = '0x' + copy1555;
+                    }
+                    navigator.clipboard.writeText(copy1555);
+                } else if (buttonNumber == 3) {
+                    navigator.clipboard.writeText(copyHex);
+                } else if (buttonNumber == 4) {
+                    navigator.clipboard.writeText(copyRGB);
+                } else if (buttonNumber == 5) {
+                    navigator.clipboard.writeText(copyCeltic);
+                }
+            }
+
+            window.onclick = function(event) {
+                if (!event.target.matches('.copyButtons')) {
+                    let dropdowns = document.getElementsByClassName("dropdownButtons");
+                    for (let i = 0; i < dropdowns.length; i++) {
+                        let openDropdown = dropdowns[i];
+                        if (openDropdown.classList.contains('show')) {
+                            openDropdown.classList.remove('show');
+                        }
+                    }
+                }
+            }
+
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.5\nDate: 2022-04-15\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.6\nDate: 2022-09-17\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -342,8 +454,20 @@
             <input type="checkbox" onclick="changeRGBmode()">
             <span class="slider round"></span>
         </label>
-        <h3 id="rgbMode" class="modeDisplay">1555 Mode</h3>
-        <h3 id="copyright" style="color: #808080; float: right;" onclick="info()"></h3>
+        <h3 id="rgbMode" class="modeDisplay">1555 Mode &nbsp;</h3>
+        <section class="dropdown">
+            <input type="button" value="Copy Values" class="customPalette copyButtons" onclick="dropdownButtons(0)">
+            <section id="dropdownBox" class="dropdownButtons" style="background-color: rgb(243,243,243); border: solid black 1px;">
+                <input type="button" value="Copy 1555" class="customPalette copyButtons" onclick="dropdownButtons(1)">
+                <input type="button" value="Copy 565" class="customPalette copyButtons" onclick="dropdownButtons(2)">
+                <input type="button" value="Copy 24b Hex" class="customPalette copyButtons" onclick="dropdownButtons(3)">
+                <input type="button" value="Copy RGB" class="customPalette copyButtons" onclick="dropdownButtons(4)">
+                <input type="button" value="Copy Celtic" class="customPalette copyButtons" onclick="dropdownButtons(5)" style="margin: 0px;">
+            </section>
+        </section>
+        <h3 id="copyright" style="color: #808080; float: right; padding-left: 5px;" onclick="info()"></h3>
+        <h3 style="color: #000000; float: right; cursor: default;" id="breakLine">|</h3>
+        <a href="https://github.com/RoccoLoxPrograms/1555ColorPicker/blob/main/README.md" target="_blank" style="float: right;" title="See a list of features.">View ReadMe</a>
         <br>
         <h1 id="title">1555 Color Picker</h1>
         <p id="changeColorPicker" style="font-size: 100%; margin: 0px 0px 15px 0px; padding: 0px; font-weight: normal;">
@@ -359,6 +483,12 @@
             GREEN: <input type="number" min="0" max="255" value="0" class="numberValue" id="greenUserValue" onclick="selectAll('greenUserValue')">
             BLUE: <input type="number" min="0" max="255" value="0" class="numberValue" id="blueUserValue" onclick="selectAll('blueUserValue')">&nbsp;
             &nbsp; HEX (24-bit): <input type="text" value="000000" class="textValue" id="hexUserValue" onclick="selectAll('hexUserValue')">
+            <br>
+            <br>
+            Celtic Format
+            <br>
+            LOW BYTE: <input type="number" min="0" max="255" value="0" class="numberValue" id="celticUserValLo" onclick="selectAll('celticUserValLo')">&nbsp;
+            &nbsp; HIGH BYTE: <input type="number" min="0" max="255" value="0" class="numberValue" id="celticUserValHi" onclick="selectAll('celticUserValHi')">
         </p>
         <br>
         <p id="1555hexValue" style="font-size: 175%; padding: 0px; margin: 5px;">1555: 0x0000 &nbsp; &nbsp; &nbsp; Palette: 0x00, 0x00</p>
@@ -478,8 +608,43 @@
                 updateValues(red, green, blue, c1555);
             }
 
+            document.getElementById("celticUserValLo").oninput = function() {
+                celticLo = this.value;
+                if (celticLo == '') celticLo = 0;
+                if (!colorMode565) {
+                    return;
+                }
+                celticLo = parseInt(celticLo);
+                celticHi = parseInt(document.getElementById("celticUserValHi").value);
+                celticHi = celticHi << 8;
+                c1555 = celticHi + celticLo;
+                red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                //console.log(c1555, celticHi, celticLo);
+                updateValues(red, green, blue, c1555);
+            }
+
+            document.getElementById("celticUserValHi").oninput = function() {
+                celticHi = this.value;
+                if (celticHi == '') celticHi = 0;
+                if (!colorMode565) {
+                    return;
+                }
+                celticHi = parseInt(celticHi);
+                celticLo = parseInt(document.getElementById("celticUserValLo").value);
+                celticHi = celticHi << 8;
+                c1555 = celticHi + celticLo;
+                red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                //console.log(c1555, celticHi, celticLo);
+                updateValues(red, green, blue, c1555);
+            }
+
             // define all of these variables
             var red = 0, green = 0, blue = 0, oldn = 1, oldr = 0, oldg = 0, oldb = 255, colorMode565 = false;
+            var copyCeltic = "0, 0", copyHex = "000000", copyRGB = "r: 0, g: 0, b: 0", copy1555 = "0x0000";
             // change copyright year
             const date = new Date();
             document.getElementById("copyright").innerHTML = `&copy; 2021-${date.getFullYear()} RoccoLox Programs`;
