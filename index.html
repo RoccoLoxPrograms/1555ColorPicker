@@ -254,6 +254,21 @@
                 document.getElementById("blueUserValue").value = blue;
                 if (!colorMode565) {
                     document.getElementById("1555hexValue").innerHTML = `1555: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
+                    let tempVar = parseInt(c1555.substr(2, 4), 16);
+                    let tempRed = Math.round((tempVar >> 10 & 31) * 255 / 31);
+                    let tempGreen = Math.round((tempVar >> 15 & 1 | tempVar >> 4 & 62) * 255 / 63);
+                    let tempBlue = Math.round((tempVar & 31) * 255 / 31);
+                    tempVar = RGBto565(tempRed, tempGreen, tempBlue);
+                    tempVar = tempVar.toString(16).toUpperCase();
+                    if (tempVar.length == 1) tempVar = '0x000' + tempVar;
+                    else if (tempVar.length == 2) tempVar = '0x00' + tempVar;
+                    else if (tempVar.length == 3) tempVar = '0x0' + tempVar;
+                    else if (tempVar.length == 4) tempVar = '0x' + tempVar;
+                    hiByte = parseInt(tempVar.substr(2, 2), 16);
+                    loByte = parseInt(tempVar.substr(4, 2), 16);
+                    document.getElementById("celticUserValLo").value = loByte;
+                    document.getElementById("celticUserValHi").value = hiByte;
+                    copyCeltic = loByte + ", " + hiByte;
                 } else {
                     document.getElementById("1555hexValue").innerHTML = `565: ${c1555} &nbsp; &nbsp; &nbsp; Palette: 0x${pal1}, ${pal2}`;
                     hiByte = parseInt(c1555.substr(2, 2), 16);
@@ -264,7 +279,6 @@
                 }
                 copy1555 = c1555;
                 if (!colorMode565) {
-                    // thank you Zeroko
                     red = Math.round((color1555 >> 10 & 31) * 255 / 31);
                     green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63);
                     blue = Math.round((color1555 & 31) * 255 / 31);
@@ -389,35 +403,37 @@
                 document.getElementById("dropdownBox").classList.toggle("show");
                 if (buttonNumber == 0) return;
                 if (buttonNumber == 1) {
+                    let copyValue = copy1555;
                     if (colorMode565) {
                         color1555 = parseInt(copy1555.substr(2, 4), 16);
                         red = ((((color1555 >> 11) & 0x1F) * 527) + 23) >> 6;
                         green = ((((color1555 >> 5) & 0x3F) * 259) + 33) >> 6;
                         blue = (((color1555 & 0x1F) * 527) + 23) >> 6;
                         color1555 = RGBto1555(red, green, blue);
-                        copy1555 = parseInt(color1555).toString(16).toUpperCase();
+                        copyValue = parseInt(color1555).toString(16).toUpperCase();
                         // make sure the length is 6
-                        if (copy1555.length == 1) copy1555 = '0x000' + copy1555;
-                        else if (copy1555.length == 2) copy1555 = '0x00' + copy1555;
-                        else if (copy1555.length == 3) copy1555 = '0x0' + copy1555;
-                        else if (copy1555.length == 4) copy1555 = '0x' + copy1555;
+                        if (copyValue.length == 1) copyValue = '0x000' + copyValue;
+                        else if (copyValue.length == 2) copyValue = '0x00' + copyValue;
+                        else if (copyValue.length == 3) copyValue = '0x0' + copyValue;
+                        else if (copyValue.length == 4) copyValue = '0x' + copyValue;
                     }
-                    navigator.clipboard.writeText(copy1555);
+                    navigator.clipboard.writeText(copyValue);
                 } else if (buttonNumber == 2) {
+                    let copyValue = copy1555;
                     if (!colorMode565) {
                         color1555 = parseInt(copy1555.substr(2, 4), 16);
                         red = Math.round((color1555 >> 10 & 31) * 255 / 31);
                         green = Math.round((color1555 >> 15 & 1 | color1555 >> 4 & 62) * 255 / 63);
                         blue = Math.round((color1555 & 31) * 255 / 31);
                         color1555 = RGBto565(red, green, blue);
-                        copy1555 = parseInt(color1555).toString(16).toUpperCase();
+                        copyValue = parseInt(color1555).toString(16).toUpperCase();
                         // make sure the length is 6
-                        if (copy1555.length == 1) copy1555 = '0x000' + copy1555;
-                        else if (copy1555.length == 2) copy1555 = '0x00' + copy1555;
-                        else if (copy1555.length == 3) copy1555 = '0x0' + copy1555;
-                        else if (copy1555.length == 4) copy1555 = '0x' + copy1555;
+                        if (copyValue.length == 1) copyValue = '0x000' + copyValue;
+                        else if (copyValue.length == 2) copyValue = '0x00' + copyValue;
+                        else if (copyValue.length == 3) copyValue = '0x0' + copyValue;
+                        else if (copyValue.length == 4) copyValue = '0x' + copyValue;
                     }
-                    navigator.clipboard.writeText(copy1555);
+                    navigator.clipboard.writeText(copyValue);
                 } else if (buttonNumber == 3) {
                     navigator.clipboard.writeText(copyHex);
                 } else if (buttonNumber == 4) {
@@ -440,7 +456,7 @@
             }
 
             function info() { // short description
-                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.6\nDate: 2022-09-17\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
+                alert("1555 Color Picker\nBy RoccoLox Programs\nVersion: 1.7\nDate: 2022-11-27\nLicense: BSD 3-Clause License\nDescription: 1555 color picker for C and Assembly programmers on the TI-84 Plus CE.");
             }
         </script>
     </head>
@@ -611,34 +627,40 @@
             document.getElementById("celticUserValLo").oninput = function() {
                 celticLo = this.value;
                 if (celticLo == '') celticLo = 0;
-                if (!colorMode565) {
-                    return;
-                }
                 celticLo = parseInt(celticLo);
                 celticHi = parseInt(document.getElementById("celticUserValHi").value);
                 celticHi = celticHi << 8;
                 c1555 = celticHi + celticLo;
-                red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
-                green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
-                blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
-                //console.log(c1555, celticHi, celticLo);
+                if (colorMode565) {
+                    red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                } else {
+                    red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                    c1555 = RGBto1555(red, green, blue);
+                }
                 updateValues(red, green, blue, c1555);
             }
 
             document.getElementById("celticUserValHi").oninput = function() {
                 celticHi = this.value;
                 if (celticHi == '') celticHi = 0;
-                if (!colorMode565) {
-                    return;
-                }
                 celticHi = parseInt(celticHi);
                 celticLo = parseInt(document.getElementById("celticUserValLo").value);
                 celticHi = celticHi << 8;
                 c1555 = celticHi + celticLo;
-                red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
-                green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
-                blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
-                //console.log(c1555, celticHi, celticLo);
+                if (colorMode565) {
+                    red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                } else {
+                    red = ((((c1555 >> 11) & 0x1F) * 527) + 23) >> 6;
+                    green = ((((c1555 >> 5) & 0x3F) * 259) + 33) >> 6;
+                    blue = (((c1555 & 0x1F) * 527) + 23) >> 6;
+                    c1555 = RGBto1555(red, green, blue);
+                }
                 updateValues(red, green, blue, c1555);
             }
 
