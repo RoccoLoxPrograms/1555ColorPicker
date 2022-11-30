@@ -9,4 +9,4 @@
 * Switchs between the Xlibc Color Picker and the 1555 Color Picker.
 * Change between light mode and dark mode.
 * View colors in rgb1555 mode or rgb565 mode.
-* Supports Celtic CSE/CE format for inputting custom colors (only works when in rgb565 mode).
+* Supports Celtic CSE/CE format for inputting custom colors.
